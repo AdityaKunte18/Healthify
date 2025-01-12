@@ -1,39 +1,107 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
+// _layout.tsx
+
+import React from 'react';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { DatabaseProvider, useDatabase } from '../context/DatabaseContext';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+function LoadingScreen() {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#3498db" />
+    </View>
+  );
+}
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+function RootLayoutContent() {
+  const { isDbInitialized } = useDatabase();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
+  if (!isDbInitialized) {
+    return <LoadingScreen />;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack
+      screenOptions={{
+        // Add any global screen options here
+      }}
+    >
+      <Stack.Screen
+        name="index"
+        options={{ title: 'Home',
+          headerBackVisible: false
+         }}
+      />
+     
+      <Stack.Screen name="addpatient" 
+        options={{ title: 'Add Patient' }} 
+      />
+
+      <Stack.Screen name="addtasks" 
+          options={{ title: 'Add Tasks',
+           }} 
+      />
+
+    <Stack.Screen name="reviewpatients" 
+          options={{ title: 'Review Current Patients',
+           }} 
+      />
+    
+    <Stack.Screen name="reviewoldpatients" 
+          options={{ title: 'Review Discharged Patients',
+           }} 
+      />
+
+  <Stack.Screen name="editpatient" 
+          options={{ title: 'Edit Details',
+           }} 
+      />
+
+  <Stack.Screen name="viewtasks" 
+          options={{ title: 'View Tasks',
+           }} 
+      />
+  
+  <Stack.Screen name="edittask" 
+          options={{ title: 'Edit Task',
+           }} 
+      />
+
+<Stack.Screen name="pendingtasks" 
+          options={{ title: 'Pending Tasks',
+           }} 
+      />
+
+<Stack.Screen name="collectedtasks" 
+          options={{ title: 'Reports To Collect',
+           }} 
+      />
+
+<Stack.Screen name="completedtasks" 
+          options={{ title: 'View Completed Tasks',
+           }} 
+      />
+
+
+    </Stack>
   );
 }
+
+export default function RootLayout() {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <DatabaseProvider>
+      <RootLayoutContent />
+    </DatabaseProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
